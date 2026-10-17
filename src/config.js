@@ -4,7 +4,10 @@ export const CONFIG = {
   ORGANIZER_SHORT: import.meta.env?.VITE_ORGANIZER_SHORT || "GDSC",
   
   // Set to true to unlock all days immediately for testing or live showcase
-  UNLOCK_ALL: import.meta.env?.VITE_UNLOCK_ALL === "true" || false,
+  UNLOCK_ALL: String(import.meta.env?.VITE_UNLOCK_ALL).toLowerCase() === "true" || String(import.meta.env?.VITE_UNLOCK_ALL) === "1",
+
+  // Global toast notification timeout (in ms, default 2000ms for faster dismissal)
+  TOAST_DURATION: Number(import.meta.env?.VITE_TOAST_DURATION) || 2000,
 
   // Google Form link for live leaderboard submissions
   GOOGLE_FORM_URL:

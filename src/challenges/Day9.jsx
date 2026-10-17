@@ -118,7 +118,7 @@ export const Day9 = ({ dayData, onSuccess }) => {
       }
 
       toast.success("🎉 Grand Restoration Complete! Navratri Utsav restored! 🪔", {
-        duration: 5000,
+        duration: 2500,
       });
 
       // Background Automated Google Form Submission
@@ -129,7 +129,7 @@ export const Day9 = ({ dayData, onSuccess }) => {
         token: verificationToken,
       }).then((res) => {
         if (res.success) {
-          toast.success("🚀 Score automatically synced to live GDSC Google Sheet!", { duration: 4000 });
+          toast.success("🚀 Score automatically synced to live GDSC Google Sheet!", { duration: 2500 });
         }
       });
 

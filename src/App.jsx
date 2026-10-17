@@ -15,6 +15,7 @@ import { Final } from "./pages/Final";
 import { Leaderboard } from "./pages/Leaderboard";
 import { About } from "./pages/About";
 import { Toaster } from "react-hot-toast";
+import { CONFIG } from "./config";
 
 export const App = () => {
   const { playerName } = useGame();
@@ -68,7 +69,7 @@ export const App = () => {
           position="top-right"
           gutter={10}
           toastOptions={{
-            duration: 3500,
+            duration: CONFIG.TOAST_DURATION,
             style: {
               background: "#130422",
               color: "#f8fafc",

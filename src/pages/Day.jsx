@@ -71,7 +71,7 @@ export const Day = () => {
     triggerPartyPopper(accent.hex);
     completeDay(dayNum);
     toast.success(`Day ${dayNum} Restored! ${dayData.devi}'s blessing unlocked. 🪔`, {
-      duration: 4500,
+      duration: 2500,
     });
   };
 
