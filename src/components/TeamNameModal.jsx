@@ -4,19 +4,44 @@ import { sanitizeInput } from "../utils/security";
 import toast from "react-hot-toast";
 
 export const TeamNameModal = ({ isOpen, onClose }) => {
-  const { playerName, setPlayerName } = useGame();
-  const [inputVal, setInputVal] = useState(playerName || "");
+  const { playerName, playerEmail, playerRoll, setParticipantDetails } = useGame();
+  const [nameVal, setNameVal] = useState(playerName || "");
+  const [emailVal, setEmailVal] = useState(playerEmail || "");
+  const [rollVal, setRollVal] = useState(playerRoll || "");
+
+  // Sync inputs if modal opens or props change
+  React.useEffect(() => {
+    if (isOpen) {
+      setNameVal(playerName || "");
+      setEmailVal(playerEmail || "");
+      setRollVal(playerRoll || "");
+    }
+  }, [isOpen, playerName, playerEmail, playerRoll]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const clean = sanitizeInput(inputVal, 30);
-    if (clean) {
-      setPlayerName(clean);
-      toast.success(`Welcome to the Utsav, ${clean}! 🛡️`);
-      onClose();
+    const cleanName = sanitizeInput(nameVal, 30);
+    const cleanEmail = sanitizeInput(emailVal, 80).trim();
+    const cleanRoll = sanitizeInput(rollVal, 30).trim();
+
+    if (!cleanName) {
+      toast.error("Please provide a team or player call-sign.");
+      return;
     }
+    if (!cleanEmail) {
+      toast.error("Please provide an email address.");
+      return;
+    }
+
+    setParticipantDetails({
+      name: cleanName,
+      email: cleanEmail,
+      rollNumber: cleanRoll,
+    });
+    toast.success(`Participant profile saved, ${cleanName}! 🛡️`);
+    onClose();
   };
 
   return (
@@ -41,24 +66,53 @@ export const TeamNameModal = ({ isOpen, onClose }) => {
             Identify Your Squad
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            Enter your team handle or individual coder name. Inputs are sanitized and stored safely on your device.
+            Provide your details for leaderboard recognition and official Google Form automated scoring.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label className="block text-xs font-mono uppercase text-amber-300 mb-1.5">
-              Player / Team Call-Sign:
+              Player / Team Call-Sign <span className="text-rose-400">*</span>
             </label>
             <input
               type="text"
               required
               maxLength={30}
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value.slice(0, 30))}
+              value={nameVal}
+              onChange={(e) => setNameVal(e.target.value.slice(0, 30))}
               placeholder="e.g. CyberGarba Warriors or Ananya"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 text-slate-100 text-sm font-sans placeholder-slate-600 outline-none transition-colors"
               autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono uppercase text-amber-300 mb-1.5">
+              Email Address <span className="text-rose-400">*</span>
+            </label>
+            <input
+              type="email"
+              required
+              maxLength={80}
+              value={emailVal}
+              onChange={(e) => setEmailVal(e.target.value.slice(0, 80))}
+              placeholder="e.g. student@nitandhra.ac.in"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 text-slate-100 text-sm font-sans placeholder-slate-600 outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono uppercase text-amber-300 mb-1.5">
+              Roll Number / Student ID <span className="text-slate-400 text-[10px] lowercase">(optional)</span>
+            </label>
+            <input
+              type="text"
+              maxLength={30}
+              value={rollVal}
+              onChange={(e) => setRollVal(e.target.value.slice(0, 30))}
+              placeholder="e.g. 422101 or CSE-2026-09"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 text-slate-100 text-sm font-sans placeholder-slate-600 outline-none transition-colors"
             />
           </div>
 
@@ -76,7 +130,7 @@ export const TeamNameModal = ({ isOpen, onClose }) => {
               type="submit"
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-rose-600 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:scale-105 transition-all cursor-pointer"
             >
-              Confirm & Enter Quest →
+              Save & Enter Quest →
             </button>
           </div>
         </form>

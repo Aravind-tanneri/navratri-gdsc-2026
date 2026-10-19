@@ -22,6 +22,8 @@ export const CONFIG = {
   // Entry ID mappings extracted directly from the live Google Form
   FORM_ENTRIES: {
     name: import.meta.env?.VITE_FORM_ENTRY_NAME || "entry.1709921399",
+    email: import.meta.env?.VITE_FORM_ENTRY_EMAIL || "entry.2140006638",
+    rollNumber: import.meta.env?.VITE_FORM_ENTRY_ROLL_NUMBER || "entry.5928566",
     score: import.meta.env?.VITE_FORM_ENTRY_SCORE || "entry.315576857",
     timeSeconds: import.meta.env?.VITE_FORM_ENTRY_TIME || "entry.379942005",
     token: import.meta.env?.VITE_FORM_ENTRY_TOKEN || "entry.596081587",

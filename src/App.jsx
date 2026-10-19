@@ -18,18 +18,18 @@ import { Toaster } from "react-hot-toast";
 import { CONFIG } from "./config";
 
 export const App = () => {
-  const { playerName } = useGame();
+  const { playerName, playerEmail } = useGame();
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
 
-  // Automatically prompt for team/player call-sign on first visit if not yet set
+  // Automatically prompt for team/player details on visit if not yet set
   useEffect(() => {
-    if (!playerName) {
+    if (!playerName || !playerEmail) {
       const timer = setTimeout(() => {
         setIsNameModalOpen(true);
       }, 700);
       return () => clearTimeout(timer);
     }
-  }, [playerName]);
+  }, [playerName, playerEmail]);
 
   return (
     <ErrorBoundary>

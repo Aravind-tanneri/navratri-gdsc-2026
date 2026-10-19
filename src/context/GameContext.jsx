@@ -19,6 +19,8 @@ const GameContext = createContext(null);
 
 const DEFAULT_STATE = {
   playerName: "",
+  playerEmail: "",
+  playerRoll: "",
   completedDays: [],
   dayScores: {},
   hintsUsed: {},
@@ -100,6 +102,8 @@ export const GameProvider = ({ children }) => {
 
       return {
         playerName: sanitizeInput(parsed.playerName || "", 30),
+        playerEmail: sanitizeInput(parsed.playerEmail || "", 80),
+        playerRoll: sanitizeInput(parsed.playerRoll || "", 30),
         completedDays: validatedCompleted,
         dayScores: sanitizedScores,
         hintsUsed: parsed.hintsUsed && typeof parsed.hintsUsed === "object" ? parsed.hintsUsed : {},
@@ -175,6 +179,25 @@ export const GameProvider = ({ children }) => {
   const setPlayerName = (name) => {
     const clean = sanitizeInput(name || "", 30);
     setState((prev) => ({ ...prev, playerName: clean }));
+  };
+
+  const setParticipantDetails = ({ name, email, rollNumber }) => {
+    setState((prev) => ({
+      ...prev,
+      playerName: sanitizeInput(name !== undefined ? name : prev.playerName || "", 30),
+      playerEmail: sanitizeInput(email !== undefined ? email : prev.playerEmail || "", 80),
+      playerRoll: sanitizeInput(rollNumber !== undefined ? rollNumber : prev.playerRoll || "", 30),
+    }));
+  };
+
+  const setPlayerEmail = (email) => {
+    const clean = sanitizeInput(email || "", 80);
+    setState((prev) => ({ ...prev, playerEmail: clean }));
+  };
+
+  const setPlayerRoll = (roll) => {
+    const clean = sanitizeInput(roll || "", 30);
+    setState((prev) => ({ ...prev, playerRoll: clean }));
   };
 
   const toggleSound = () => {
@@ -291,6 +314,8 @@ export const GameProvider = ({ children }) => {
   const resetProgress = () => {
     const fresh = {
       playerName: state.playerName,
+      playerEmail: state.playerEmail,
+      playerRoll: state.playerRoll,
       completedDays: [],
       dayScores: {},
       hintsUsed: {},
@@ -324,7 +349,12 @@ export const GameProvider = ({ children }) => {
     <GameContext.Provider
       value={{
         playerName: state.playerName,
+        playerEmail: state.playerEmail || "",
+        playerRoll: state.playerRoll || "",
         setPlayerName,
+        setPlayerEmail,
+        setPlayerRoll,
+        setParticipantDetails,
         completedDays: state.completedDays,
         dayScores: state.dayScores,
         hintsUsed: state.hintsUsed,

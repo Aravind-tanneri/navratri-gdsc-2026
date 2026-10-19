@@ -4,15 +4,26 @@ import { useGame } from "../context/GameContext";
 import { CONFIG } from "../config";
 import { parseLeaderboardCSV, exportLeaderboardToCSV } from "../utils/csv";
 import { autoSubmitScoreToGoogleForm } from "../utils/googleForm";
+import { ParticipantDetailsModal } from "../components/ParticipantDetailsModal";
 import toast from "react-hot-toast";
 
 export const Leaderboard = () => {
-  const { leaderboard, playerName, totalScore, totalTimeSeconds, completedDays, verificationToken } = useGame();
+  const {
+    leaderboard,
+    playerName,
+    playerEmail,
+    playerRoll,
+    totalScore,
+    totalTimeSeconds,
+    completedDays,
+    verificationToken,
+  } = useGame();
 
   const [activeTab, setActiveTab] = useState("global"); // 'global' | 'local'
   const [globalEntries, setGlobalEntries] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [lastSyncedTime, setLastSyncedTime] = useState(null);
   const [syncError, setSyncError] = useState(null);
 
@@ -24,16 +35,19 @@ export const Leaderboard = () => {
 
   const [syncStatusInfo, setSyncStatusInfo] = useState(null);
 
-  const handleAutoSubmit = async () => {
+  const executeAutoSubmit = async (details = {}) => {
     setIsAutoSubmitting(true);
     const toastId = toast.loading("Auto-submitting your score to GDSC Sheet...", { id: "auto-submit" });
     const res = await autoSubmitScoreToGoogleForm({
-      name: playerName || "Anonymous Defender",
+      name: details.name || playerName || "Anonymous Defender",
+      email: details.email || playerEmail || "",
+      rollNumber: details.rollNumber || playerRoll || "",
       score: totalScore,
       timeSeconds: totalTimeSeconds,
       token: verificationToken,
     });
     setIsAutoSubmitting(false);
+    setShowDetailsModal(false);
     if (res.success) {
       if (res.alreadySubmitted) {
         toast.success("Score is already securely recorded in GDSC standings! ✨", { id: "auto-submit" });
@@ -44,6 +58,14 @@ export const Leaderboard = () => {
     } else {
       toast.error(res.message, { id: "auto-submit" });
     }
+  };
+
+  const handleAutoSubmitClick = () => {
+    if (!playerEmail) {
+      setShowDetailsModal(true);
+      return;
+    }
+    executeAutoSubmit();
   };
 
   // Sync with global Google Sheet / Excel CSV feed
@@ -133,7 +155,7 @@ export const Leaderboard = () => {
         <div className="flex flex-wrap items-center gap-3">
           {/* 1-Click Instant Auto-Submit */}
           <button
-            onClick={handleAutoSubmit}
+            onClick={handleAutoSubmitClick}
             disabled={isAutoSubmitting}
             className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-600 hover:from-emerald-300 hover:to-teal-400 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.45)] border border-emerald-300/60 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
             title="Automatically post score into the linked Google Sheet"
@@ -141,6 +163,14 @@ export const Leaderboard = () => {
             <span>⚡</span>
             <span>{isAutoSubmitting ? "Submitting..." : "Auto-Submit My Score"}</span>
           </button>
+
+          {/* Participant Details Collection Modal before auto-submitting */}
+          <ParticipantDetailsModal
+            isOpen={showDetailsModal}
+            onClose={() => setShowDetailsModal(false)}
+            onConfirm={executeAutoSubmit}
+            isSubmitting={isAutoSubmitting}
+          />
 
           {CONFIG.GOOGLE_FORM_URL && (
             <a

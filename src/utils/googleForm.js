@@ -24,13 +24,15 @@ export function isScoreAlreadySubmitted(token) {
  *
  * @param {Object} params
  * @param {string} params.name - Player / Team Call-Sign
+ * @param {string} [params.email] - Participant Email
+ * @param {string} [params.rollNumber] - Participant Roll Number
  * @param {number} params.score - Total Score (out of 900)
  * @param {number} params.timeSeconds - Active Quest Elapsed Seconds
  * @param {string} params.token - Cryptographic Verification Token
  * @param {boolean} [params.force=false] - Force re-submission even if token was already submitted
  * @returns {Promise<{ success: boolean, alreadySubmitted?: boolean, message: string }>}
  */
-export async function autoSubmitScoreToGoogleForm({ name, score, timeSeconds, token, force = false }) {
+export async function autoSubmitScoreToGoogleForm({ name, email = "", rollNumber = "", score, timeSeconds, token, force = false }) {
   if (!CONFIG.GOOGLE_FORM_RESPONSE_URL) {
     return { success: false, message: "Form submission endpoint not configured." };
   }
@@ -49,6 +51,8 @@ export async function autoSubmitScoreToGoogleForm({ name, score, timeSeconds, to
     const entries = CONFIG.FORM_ENTRIES || {};
 
     formData.append(entries.name || "entry.1709921399", name || "Anonymous Defender");
+    formData.append(entries.email || "entry.2140006638", email || "");
+    formData.append(entries.rollNumber || "entry.5928566", rollNumber || "");
     formData.append(entries.score || "entry.315576857", String(score ?? 0));
     formData.append(entries.timeSeconds || "entry.379942005", String(timeSeconds ?? 0));
     formData.append(entries.token || "entry.596081587", token || "");

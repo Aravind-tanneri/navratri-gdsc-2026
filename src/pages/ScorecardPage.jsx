@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { DAYS_DATA, ACCENT_LOOKUP } from "../data/days";
 import { useGame } from "../context/GameContext";
 import { autoSubmitScoreToGoogleForm } from "../utils/googleForm";
+import { ParticipantDetailsModal } from "../components/ParticipantDetailsModal";
 import toast from "react-hot-toast";
 
 export const ScorecardPage = () => {
@@ -16,6 +17,8 @@ export const ScorecardPage = () => {
     totalTimeSeconds,
     systemIntegrity,
     playerName,
+    playerEmail,
+    playerRoll,
     resetProgress,
     verificationToken,
   } = useGame();
@@ -23,17 +26,21 @@ export const ScorecardPage = () => {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  const handleAutoSubmit = async () => {
+  const executeAutoSubmit = async (details = {}) => {
     setIsSubmitting(true);
     const toastId = toast.loading("Submitting verified score to GDSC Sheet...", { id: "scorecard-submit" });
     const res = await autoSubmitScoreToGoogleForm({
-      name: playerName || "Anonymous Defender",
+      name: details.name || playerName || "Anonymous Defender",
+      email: details.email || playerEmail || "",
+      rollNumber: details.rollNumber || playerRoll || "",
       score: totalScore,
       timeSeconds: totalTimeSeconds,
       token: verificationToken,
     });
     setIsSubmitting(false);
+    setShowDetailsModal(false);
     if (res.success) {
       if (res.alreadySubmitted) {
         toast.success("Score is already safely recorded in GDSC standings! ✨", { id: "scorecard-submit" });
@@ -43,6 +50,15 @@ export const ScorecardPage = () => {
     } else {
       toast.error(res.message, { id: "scorecard-submit" });
     }
+  };
+
+  const handleAutoSubmitClick = () => {
+    // If email is not yet provided, prompt participant first
+    if (!playerEmail) {
+      setShowDetailsModal(true);
+      return;
+    }
+    executeAutoSubmit();
   };
 
   const formatTime = (secs) => {
@@ -153,7 +169,7 @@ export const ScorecardPage = () => {
             {copiedToken ? "Copied!" : "Copy"}
           </button>
           <button
-            onClick={handleAutoSubmit}
+            onClick={handleAutoSubmitClick}
             disabled={isSubmitting}
             className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)] border border-emerald-300/60 cursor-pointer active:scale-95 transition-all flex items-center gap-1 disabled:opacity-50"
             title="Automatically send score & token to the GDSC Google Sheet"
@@ -163,6 +179,14 @@ export const ScorecardPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Participant Details Collection Modal before auto-submitting */}
+      <ParticipantDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        onConfirm={executeAutoSubmit}
+        isSubmitting={isSubmitting}
+      />
 
       {/* 9 Lotus / Diya Powers Lighting Grid */}
       <section className="space-y-4">

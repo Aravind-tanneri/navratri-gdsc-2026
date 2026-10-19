@@ -59,7 +59,7 @@ const PARAMETERS = [
 ];
 
 export const Day9 = ({ dayData, onSuccess }) => {
-  const { clues, recordWrongAttempt, playerName, totalScore, totalTimeSeconds, verificationToken } = useGame();
+  const { clues, recordWrongAttempt, playerName, playerEmail, playerRoll, totalScore, totalTimeSeconds, verificationToken } = useGame();
   const [selections, setSelections] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [isShaking, setIsShaking] = useState(false);
@@ -124,6 +124,8 @@ export const Day9 = ({ dayData, onSuccess }) => {
       // Background Automated Google Form Submission
       autoSubmitScoreToGoogleForm({
         name: playerName || "Anonymous Defender",
+        email: playerEmail || "",
+        rollNumber: playerRoll || "",
         score: totalScore,
         timeSeconds: totalTimeSeconds,
         token: verificationToken,
